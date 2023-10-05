@@ -4,7 +4,7 @@ build:
   common:
     context: .
     dockerfile: dev-common.Dockerfile
-    image: okteto.dev/stripe-app-common
+    image: okteto.dev/st-stripe-app-common
 
 deploy:
   commands:
@@ -13,7 +13,7 @@ deploy:
 
 dev:
   stripe-app:
-    container: stripe-app-common
+    container: st-stripe-app-common
     command: [ '/bin/sh','-c','composer install; npm install; npm run build; chown -R www-data: /var/www/html; /usr/sbin/php-fpm8.1 --nodaemonize --fpm-config /etc/php/8.1/fpm/php-fpm.conf & /usr/sbin/nginx -g "daemon off;"']
     sync:
       - .:/var/www/html
