@@ -1,0 +1,28 @@
+name: stripe-app
+
+build:
+  common:
+    context: .
+    dockerfile: dev-common.Dockerfile
+    image: okteto.dev/stripe-app-common
+
+deploy:
+  commands:
+    - envsubst < helm/stripe-app/values.yaml > helm/stripe-app/values-subs.yaml
+    - helm upgrade --install ita helm/stripe-app -f helm/stripe-app/values-subs.yaml --set image.tag=${OKTETO_BUILD_COMMON_SHA}
+
+dev:
+  stripe-app:
+    container: stripe-app-common
+    command: [ '/bin/sh','-c','composer install; npm install; npm run build; chown -R www-data: /var/www/html; /usr/sbin/php-fpm8.1 --nodaemonize --fpm-config /etc/php/8.1/fpm/php-fpm.conf & /usr/sbin/nginx -g "daemon off;"']
+    sync:
+      - .:/var/www/html
+    forward:
+      - 8080:80
+      - 9017:9000
+    reverse:
+      - 9001:9917
+    volumes:
+      - /root/.composer/cache
+    persistentVolume:
+      enabled: true
