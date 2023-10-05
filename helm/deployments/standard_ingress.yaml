@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "stripe-app.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "stripe-app.name" . }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: {{ .Values.component }}
+    app.kubernetes.io/part-of: {{ .Values.partOf }}
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-next-upstream-timeout: "300"
+    # nginx.ingress.kubernetes.io/whitelist-source-range: {{ .Values.ingress.whiteList }}
+spec:
+  tls:
+    - hosts:
+        - {{ .Values.ingress.hostITU }}
+      secretName: {{ .Values.ingress.tlsITU }}
+  rules:
+    - host: {{ .Values.ingress.hostITU }}
+      http:
+        paths:
+          - backend:
+              service:
+                name: {{ include "stripe-app.fullname" . }}
+                port:
+                  number: {{ .Values.service.port }}
+            path: /
+            pathType: Prefix

@@ -1,0 +1,106 @@
+# Default values for italentup-app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+component: stripe
+partOf: ITU
+
+replicaCount: 1
+
+image:
+  repository: okteto.dev
+  tag:
+    common: v1
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1024Mi
+    queue:
+      cpu: 250m
+      memory: 512Mi
+  requests:
+    cpu: 25m
+    memory: 128Mi
+
+appKey: base64:G83NHliYXg5dWZuODgzMXUcnp1djNvOWVqMjZ6a2dhb=
+
+app:
+  debug: true
+  name: stripe
+  env: test
+  log: daily
+  logLevel: debug
+  domain: stripe-app-${OKTETO_NAMESPACE}.pedagoo.tech
+  url: https://stripe-app-${OKTETO_NAMESPACE}.pedagoo.tech
+  asseturl: https://stripe-app-${OKTETO_NAMESPACE}.pedagoo.tech
+
+dbStripe:
+  connection: stripe_mysql
+  host: 10.191.0.244
+  port: 3306
+  database: ${OKTETO_NAMESPACE}_stripe
+  username: ptsadmin
+  password: 6SyipLohQFXAJIuwjFtXszx4Vh5zaA7u
+  dbSecure: false
+
+mail:
+  host: smtp.mailtrap.io
+  port: 2525
+  username: 64b1f28b113c89
+  password: 051dc322d25c52
+  driver: smtp
+  encryption: tls
+  fromAddress: noreply@italentup.com
+  fromName: iTalentUp
+
+driver:
+  broadcast: log
+  cache: file
+  queue: sync
+
+session:
+  domain: .pedagoo.tech
+  lifetime: 120
+  driver: redis
+
+queue:
+  launch: "php artisan optimize; php artisan queue:listen database_commands --sleep=3 --tries=1 --timeout=300;"
+  name: QUEUE_NAME_PLACEHOLDER
+
+redis:
+  client: predis
+  host: pts-npe.redis.cache.windows.net
+  password: +vEqXY9Pr7zi3oWcB1Ld6PPPgvJ0LP7uM2I0WDT7ahg=
+  port: 6380
+
+serviceUrl:
+  itembank: 'https://ite-itembank-svc-${OKTETO_NAMESPACE}.pedagoo.tech'
+  delivery: 'https://del-delivery-app-${OKTETO_NAMESPACE}.pedagoo.tech'
+
+publicapi:
+  url: 'https://pub-publicapi-svc-${OKTETO_NAMESPACE}.pedagoo.tech'
+  client_id: 1
+  secret_id: '5929faee-1be6-471c-af56-f06bea4c6612'
+
+msgraph:
+  client_id: '3ae4e609-a0aa-45d3-bae2-bad0443cc66f'
+  secret_id: 'Z.18Q~fTpxzi3Jv~OcC0Ox~rYCYLtozVSOJGOae.'
+  oauth_url: 'https://stripe-app-${OKTETO_NAMESPACE}.pedagoo.tech/connect'
+  landing_url: 'https://stripe-app-${OKTETO_NAMESPACE}.pedagoo.tech/dashboard'
+  prefer_timezone: 'outlook.timezone="Europe/London"'
+
+azure:
+  stripe:
+    storage:
+      name: saitunpewus2001
+      key: L6j6UaPesHqNhJigvOsa5ST9aSTpEDNlbj6WpMUQKq2+2/0FsaUzbPrf2gySmq/LgjRthGkzM13++AStNPcjHg==
+      string: DefaultEndpointsProtocol=https;AccountName=saitunpewus2001;AccountKey=L6j6UaPesHqNhJigvOsa5ST9aSTpEDNlbj6WpMUQKq2+2/0FsaUzbPrf2gySmq/LgjRthGkzM13++AStNPcjHg==;EndpointSuffix=core.windows.net
+      url: https://saitunpewus2001.blob.core.windows.net
+      container:
+        images: images

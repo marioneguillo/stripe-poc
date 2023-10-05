@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "stripe-app.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "stripe-app.name" . }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: {{ .Values.component }}
+    app.kubernetes.io/part-of: {{ .Values.partOf }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "stripe-app.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "stripe-app.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      volumes:
+      - name: env-volume
+        configMap:
+          name: {{ include "stripe-app.fullname" . }}
+      containers:
+      - name: {{ include "stripe-app.fullname" . }}-common
+        image: {{ .Values.image.repository }}/{{ include "stripe-app.fullname" . }}-common:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+          - name: http
+            containerPort: {{ .Values.service.port }}
+            protocol: TCP
+        resources:
+          limits:
+            memory: {{ .Values.resources.limits.memory }}
+            cpu: {{ .Values.resources.limits.cpu }}
+          requests:
+            memory: {{ .Values.resources.requests.memory }}
+            cpu: {{ .Values.resources.requests.cpu }}
+        envFrom:
+        - configMapRef:
+            name: {{ include "stripe-app.fullname" . }}
+        - secretRef:
+            name: {{ include "stripe-app.fullname" . }}
+        volumeMounts:

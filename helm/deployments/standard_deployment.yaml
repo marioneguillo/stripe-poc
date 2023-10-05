@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "stripe-app.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaConfig.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "stripe-app.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  minReadySeconds: {{ .Values.replicaConfig.minReadySeconds }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: {{ .Values.replicaConfig.maxSurge }}
+      maxUnavailable: {{ .Values.replicaConfig.maxUnavailable }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "stripe-app.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      volumes:
+      - name: env-volume
+        configMap:
+          name: {{ include "stripe-app.fullname" . }}
+      containers:
+      - name: {{ include "stripe-app.fullname" . }}-php
+        image: {{ .Values.image.repository }}/{{ include "stripe-app.fullname" . }}-php:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        args: ["php artisan optimize; /usr/sbin/php-fpm8.1 --nodaemonize --fpm-config /etc/php/8.1/fpm/php-fpm.conf & /usr/sbin/nginx -g 'daemon off;'"]
+        ports:
+          - name: http
+            containerPort: {{ .Values.service.port }}
+            protocol: TCP
+        livenessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - '-c'
+              - /etc/init.d/php8.1-fpm status
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.livenessProbe.successThreshold }}
+          failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - '-c'
+              - /etc/init.d/php8.1-fpm status
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.livenessProbe.successThreshold }}
+          failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+        resources:
+          limits:
+            memory: {{ .Values.resources.limits.memory }}
+            cpu: {{ .Values.resources.limits.cpu }}
+          requests:
+            memory: {{ .Values.resources.requests.memory }}
+            cpu: {{ .Values.resources.requests.cpu }}
+        envFrom:
+        - configMapRef:
+            name: {{ include "stripe-app.fullname" . }}
+        - secretRef:
+            name: {{ include "stripe-app.fullname" . }}
+      - name: {{ include "stripe-app.fullname" . }}-queue
+        image: {{ .Values.image.repository }}/{{ include "stripe-app.fullname" . }}-php:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        args: [{{ .Values.queue.launch }}]
+        resources:
+          limits:
+            memory: {{ .Values.resources.limits.queue.memory }}
+            cpu: {{ .Values.resources.limits.queue.cpu }}
+          requests:
+            memory: {{ .Values.resources.requests.memory }}
+            cpu: {{ .Values.resources.requests.cpu }}
+        envFrom:
+        - configMapRef:
+            name: {{ include "stripe-app.fullname" . }}
+        - secretRef:
+            name: {{ include "stripe-app.fullname" . }}
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "stripe-app.fullname" . }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "stripe-app.fullname" . }}
+  minReplicas: {{ .Values.replicaConfig.minReplicas }}
+  maxReplicas: {{ .Values.replicaConfig.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.replicaConfig.averageUtilization }}

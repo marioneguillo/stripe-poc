@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "stripe-app.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "stripe-app.name" . }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: {{ .Values.component }}
+    app.kubernetes.io/part-of: {{ .Values.partOf }}
+  annotations:
+    dev.okteto.com/generate-host: "true"
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: {{ include "stripe-app.fullname" . }}
+                port:
+                  number: {{ .Values.service.port }}
+            path: /
+            pathType: Prefix
