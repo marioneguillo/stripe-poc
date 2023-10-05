@@ -3,8 +3,8 @@ kind: Pod
 metadata:
   name: "{{ include "stripe-app.fullname" . }}-test-connection"
   labels:
-    app.kubernetes.io/name: {{ include "italentup-app.name" . }}
-    helm.sh/chart: {{ include "italentup-app.chart" . }}
+    app.kubernetes.io/name: {{ include "stripe-app.name" . }}
+    helm.sh/chart: {{ include "stripe-app.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
   annotations:
@@ -14,5 +14,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args:  ['{{ include "italentup-app.fullname" . }}:{{ .Values.service.port }}']
+      args:  ['{{ include "stripe-app.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never
