@@ -47,12 +47,6 @@ RUN apt-get update \
 
 RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.1
 
-# Install mongodb
-RUN pecl channel-update pecl.php.net
-RUN pecl -q install mongodb && \
-    sed -i '$a extension=mongodb.so' /etc/php/8.1/cli/php.ini && \
-    sed -i '$a extension=mongodb.so' /etc/php/8.1/fpm/php.ini
-
 # RUN groupadd --force -g 1000 sail
 # RUN useradd -ms /bin/bash --no-user-group -g 1000 -u 1337 sail
 COPY ./ /var/www/html/
