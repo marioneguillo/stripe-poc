@@ -12,7 +12,7 @@ deploy:
     - helm upgrade --install st helm/stripe-app -f helm/stripe-app/values-subs.yaml --set image.tag=${OKTETO_BUILD_COMMON_SHA}
 
 dev:
-  stripe-app:
+  st-stripe-app:
     container: st-stripe-app-common
     command: [ '/bin/sh','-c','composer install; npm install; npm run build; chown -R www-data: /var/www/html; /usr/sbin/php-fpm8.1 --nodaemonize --fpm-config /etc/php/8.1/fpm/php-fpm.conf & /usr/sbin/nginx -g "daemon off;"']
     sync:

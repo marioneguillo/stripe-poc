@@ -36,9 +36,9 @@ app:
   env: test
   log: daily
   logLevel: debug
-  domain: stripe-app-${OKTETO_NAMESPACE}.pedagoo.tech
-  url: https://stripe-app-${OKTETO_NAMESPACE}.pedagoo.tech
-  asseturl: https://stripe-app-${OKTETO_NAMESPACE}.pedagoo.tech
+  domain: st-stripe-app-${OKTETO_NAMESPACE}.pedagoo.tech
+  url: https://st-stripe-app-${OKTETO_NAMESPACE}.pedagoo.tech
+  asseturl: https://st-stripe-app-${OKTETO_NAMESPACE}.pedagoo.tech
 
 dbStripe:
   connection: stripe_mysql
