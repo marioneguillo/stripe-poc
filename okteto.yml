@@ -9,7 +9,7 @@ build:
 deploy:
   commands:
     - envsubst < helm/stripe-app/values.yaml > helm/stripe-app/values-subs.yaml
-    - helm upgrade --install helm/stripe-app -f helm/stripe-app/values-subs.yaml --set image.tag=${OKTETO_BUILD_COMMON_SHA}
+    - helm upgrade --install stripe helm/stripe-app -f helm/stripe-app/values-subs.yaml --set image.tag=${OKTETO_BUILD_COMMON_SHA}
 
 dev:
   stripe-app:
