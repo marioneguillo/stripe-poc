@@ -86,7 +86,7 @@
 
                                 <form method="post" action="{{ route('billing.process_extra_subscription') }}">
                                     @csrf
-                                    <input type="hidden" name="price_id" value="price_1Nx6vxGyN9hnCK0xyg0w60uU" />
+                                    <input type="hidden" name="price_id" value="price_1Ny9T9GyN9hnCK0xkJcjLw3t" />
                                     <input type="number" name="quantity" id="quantity">
                                     <button type="submit"
                                         class="flex items-center mt-4 text-white bg-blue-400 border-0 py-2 px-4 w-full focus:outline-none hover:bg-blue-400 rounded">

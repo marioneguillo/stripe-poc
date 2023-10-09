@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Organization;
+use Stripe\Plan;
 use Stripe\StripeClient;
 
 /**
@@ -23,7 +25,7 @@ function formatCurrency($amount): int|string
     );
 }
 
-function getPlanNameByStripePlan(\Stripe\Plan $plan): string
+function getPlanNameByStripePlan(Plan $plan): string
 {
 
     if ($plan->interval_count === 3) {
@@ -41,7 +43,7 @@ function getSubscriptionNameForUser(): string
 {
 
     if (isSubscribed()) {
-        $subscription = auth()->user()->subscription();
+        $subscription = auth()->user()->organization->subscription();
         $key = config('cashier.secret');
         $stripe = new StripeClient($key);
         $plan = $stripe->plans->retrieve($subscription->stripe_price);
@@ -55,6 +57,6 @@ function getSubscriptionNameForUser(): string
 
 function isSubscribed(): bool
 {
-
-    return auth()->check() && auth()->user()->subscribed();
+    // Determine if the Organization model has a given subscription.
+    return auth()->check() && auth()->user()->organization->subscribed();
 }

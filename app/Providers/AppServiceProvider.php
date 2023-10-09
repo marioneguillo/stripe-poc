@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Organization;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
@@ -15,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        Cashier::ignoreMigrations();
     }
 
     /**
@@ -25,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Cashier::calculateTaxes();
+        Cashier::useCustomerModel(Organization::class);
 
         Blade::if("subscribed", function () {
         return isSubscribed();

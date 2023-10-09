@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Country;
+use App\Models\Organization;
 use App\Models\User;
 use Auth;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Exceptions\IncompletePayment;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
@@ -16,13 +18,13 @@ class BillingController extends Controller
 {
 
     private StripeClient $stripe;
-    private User $user;
+    private ?Organization $user;
 
     public function __construct()
     {
         $this->stripe = new StripeClient(config('cashier.secret'));
         $this->middleware(function ($request, $next) {
-            $this->user = auth()->user();
+            $this->user = auth()->user()->organization;
 
             return $next($request);
         });
@@ -118,7 +120,7 @@ class BillingController extends Controller
         $plan = $this->stripe->plans->retrieve(request('price_id'));
 
         try {
-            $this->user->newSubscription('default', request('price_id'))
+            $this->user->newSubscription('default_2', request('price_id'))
                 ->create($this->user->defaultPaymentMethod()->id);
 
             return redirect(route('billing.my_subscription'))
@@ -203,6 +205,62 @@ class BillingController extends Controller
             'quantity' => 'required'
         ]);
 
-        return $this->user->checkout([request('price_id') => request('quantity')], []);
+        return $this->user
+            ->newSubscription('basic', 'price_1NxTb1GyN9hnCK0xBUGbNu0J')
+            ->checkout([
+                'success_url' => route('dashboard'),
+                'cancel_url' => route('dashboard'),
+            ]);
+        /*
+                return $this->user->checkout(
+                    [
+                        request('price_id') => request('quantity')
+                    ],
+                    [
+                        'success_url' => route('dashboard'),
+                        'success_url' => route('dashboard'),
+
+                    ]
+                );
+                */
+    }
+
+    public function createCustomer()
+    {
+        //$organization = Cashier::findBillable($this->user->stripe_id);
+        //dd($this->user->asStripeCustomer());
+
+        //create customer
+        $options2 = [
+            'name' => 'your name',
+            'address' => [
+                'line1' => 'your address',
+                'postal_code' => 'your postal code',
+                'city' => 'Your City',
+                'state' => 'Your State Code',
+                'country' => 'Your Country Code',
+            ],
+            'email' => 'your email',
+        ];
+
+        $options = [
+            'name' => 'ItalentUp 3',
+            'address' => [
+                'postal_code' => 41006,
+                'line1' => 'calle nescania',
+            ],
+            'description' => 'prueba de descripcion',
+            'email' => 'organization3@media.com',
+        ];
+
+        $stripeCustomer = $this->user->createAsStripeCustomer($options);
+
+        dd($stripeCustomer);
+    }
+
+    public function getInfoCustomer()
+    {
+        //dd($this->user->updateDefaultPaymentMethodFromStripe());
+        dd($this->user->asStripeCustomer());
     }
 }

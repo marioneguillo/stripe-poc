@@ -3,6 +3,7 @@
 use App\Http\Controllers\BillingController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ManageSubscriptionController;
 
 
 Route::get('/', function () {
@@ -26,11 +27,14 @@ Route::group(["middleware" => "auth"], function () {
             Route::post("/extra-subscribe", "processExtraSubscription")->name("process_extra_subscription");
             Route::get("/subscription", "mySubscription")->name("my_subscription")->middleware("is_stripe_customer");
             Route::get("/invoices", "invoices")->name("invoices")->middleware("is_stripe_customer");
+            Route::get("/create-customer", "createCustomer")->name("createCustomer");
+            Route::get("/info-customer", "getInfoCustomer")->name("getInfoCustomer");
+
         });
 
     Route::group(["middleware" => "is_stripe_customer"], function () {
         Route::get('/billing/portal', function () {
-            return auth()->user()->redirectToBillingPortal(route('dashboard'));
+            return auth()->user()->organization->redirectToBillingPortal(route('dashboard'));
         })->name("billing.portal");
     });
 
@@ -40,13 +44,15 @@ Route::group(["middleware" => "auth"], function () {
 
 
     Route::get('/product-checkout', function (Request $request) {
-        return $request->user()->checkout(['price_1Nx6vxGyN9hnCK0xyg0w60uU' => 6], []);
+        return $request->user()->checkout(['price_1Ny9T9GyN9hnCK0xkJcjLw3t' => 7], []);
     });
+
 });
 
 
 
 Route::get("/home")->name("home");
+Route::get('/subscription', ManageSubscriptionController::class)->name('subscription');
 
 
 require __DIR__ . '/auth.php';

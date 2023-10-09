@@ -38,6 +38,8 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\HandleInertiaRequests::class,
+
         ],
 
         'api' => [
@@ -67,6 +69,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
         'is_stripe_customer' => EnsureUserIsStripeCustomer::class,
-
+        'is_user_subscrited' => EnsureUserIsSubscribed::class,
     ];
 }
